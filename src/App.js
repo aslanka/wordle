@@ -253,33 +253,37 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>Daily Word Puzzle</h1>
+  <h1>Divya's Wordle</h1>
+  
+  <div className="header-icons">
+    <button
+      className="icon-btn"
+      onClick={() => setHintUsed(true)}
+      disabled={hintUsed || status !== "playing"}
+      title="Hint"
+    >
+      💡
+    </button>
 
-        <div className="header-buttons">
-          <button
-            className="hint-btn"
-            onClick={() => setHintUsed(true)}
-            disabled={hintUsed || status !== "playing"}
-          >
-            Hint
-          </button>
+    <button
+      className="icon-btn"
+      onClick={resetGame}
+      disabled={status !== "playing"}
+      title="Reset"
+    >
+      ↻
+    </button>
 
-          <button
-            className="reset-btn"
-            onClick={resetGame}
-            disabled={status !== "playing"}
-          >
-            Reset
-          </button>
+    <button
+      className="icon-btn"
+      onClick={toggleMusic}
+      title={isMusicPlaying ? "Pause Music" : "Play Music"}
+    >
+      {isMusicPlaying ? "⏸️" : "🎵"}
+    </button>
+  </div>
+</header>
 
-          <button
-            className="reset-btn"
-            onClick={toggleMusic}
-          >
-            {isMusicPlaying ? "Pause Music" : "Play Music"}
-          </button>
-        </div>
-      </header>
 
       {renderBoard()}
 

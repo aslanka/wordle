@@ -174,3 +174,55 @@ body {
 .key.absent {
   background-color: #3a3a3c;
 }
+
+/* Header layout */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #3a3a3c;
+  margin-bottom: 16px;
+}
+
+/* Icon row */
+.header-icons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Icon buttons */
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #2a2a2c;
+  border: 2px solid #3a3a3c;
+  color: white;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+  padding: 0;
+}
+
+/* Hover effect */
+.icon-btn:hover:not(:disabled) {
+  background: #3a3a3c;
+  transform: scale(1.1);
+}
+
+/* Disabled state */
+.icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Title spacing */
+.header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+  padding: 0;
+}
