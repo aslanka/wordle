@@ -111,7 +111,7 @@ function App() {
     });
   };
 
-  const submitGuess = () => {
+  const submitGuess = useCallback(() => { 
     if (status !== "playing") return;
 
     if (currentGuess.length !== WORD_LENGTH) {
@@ -136,24 +136,27 @@ function App() {
       setStatus("lost");
       setMessage(`The word was ${solution}`);
     }
-  };
+  }, [status, currentGuess, WORD_LENGTH, history, solution]);
 
   const handleKey = useCallback(
     (key) => {
       if (status !== "playing") return;
-
-      if (key === "ENTER") return submitGuess();
-      if (key === "BACKSPACE")
-        return setCurrentGuess((g) => g.slice(0, -1));
-
-      if (
-        /^[A-Z]$/.test(key) &&
-        currentGuess.length < WORD_LENGTH
-      ) {
-        setCurrentGuess((g) => g + key);
+  
+      if (key === "ENTER") {
+        submitGuess();
+        return;
+      }
+  
+      if (key === "BACKSPACE") {
+        setCurrentGuess((prev) => prev.slice(0, -1));
+        return;
+      }
+  
+      if (/^[A-Z]$/.test(key) && currentGuess.length < WORD_LENGTH) {
+        setCurrentGuess((prev) => prev + key);
       }
     },
-    [currentGuess, status, WORD_LENGTH]
+    [currentGuess, status, WORD_LENGTH, submitGuess]
   );
 
   useEffect(() => {
