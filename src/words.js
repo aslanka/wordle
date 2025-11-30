@@ -16,16 +16,16 @@ export const CUSTOM_WORDS = [
       hint: "something that puts you to sleep right away. YOU SPECIFICALLY, i think its really cool.",
     },
     {
-      word: "happy",
-      hint: "one of your fav doggos.",
+      word: "lulu",
+      hint: "one of your fav brands.",
     },
     {
       word: "vancleef",
       hint: "brand that you really like.",
     },
     {
-      word: "lulu",
-      hint: "brand you really like.",
+      word: "happy",
+      hint: "one of your fav doggos",
     },
     {
       word: "DILDO",
