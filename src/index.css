@@ -226,3 +226,42 @@ body {
   margin: 0;
   padding: 0;
 }
+
+/* Share Results button */
+.share-btn {
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: #538d4e;              /* Wordle-style green */
+  color: white;
+  border: none;
+  border-radius: 999px;             /* pill shape */
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: 
+    background 0.20s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* Hover effect */
+.share-btn:hover {
+  background: #6aaa64;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  transform: translateY(-2px);
+}
+
+/* Click/tap feedback */
+.share-btn:active {
+  transform: translateY(0px);
+  box-shadow: none;
+}
+
+/* Disabled state (not likely used, but for completeness) */
+.share-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
