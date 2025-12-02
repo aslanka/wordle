@@ -47,6 +47,22 @@ export const CUSTOM_WORDS = [
         word: "GREAT",
         hint: "the best wordle guess eve.",
       },
+      {
+        word: "Hermes",
+        hint: "you like this. you can get it at the mall",
+      },
+      {
+        word: "Divudi",
+        hint: "someone really close to you calls you this",
+      },
+      {
+        word: "fireball",
+        hint: "for some reason the only thing you drink.",
+      },
+      {
+        word: "die.",
+        hint: "one of your fav insults",
+      },
   ];
   
   // Valid guesses are just the words themselves.

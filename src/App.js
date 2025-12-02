@@ -8,25 +8,56 @@ import React, {
 import { getDailyWordEntry } from "./words";
 
 const ROWS = 6;
-
-const KEYBOARD_ROWS = [
-  "QWERTYUIOP",
-  "ASDFGHJKL",
-  "ZXCVBNM",
-];
-
+const KEYBOARD_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
 const LETTER_STATE_PRIORITY = {
   absent: 1,
   present: 2,
   correct: 3,
 };
 
+// 🎵 Playlist of songs
+// Make sure these files exist in /public
+const SONGS = [
+  { src: "/music/background.mp3", label: "Earned It" },
+  { src: "/music/show.mp3", label: "Enjoy the show" },
+  { src: "/music/loft.mp3", label: "Loft" },
+  { src: "/music/drake.mp3", label: "Wait For You" },
+  { src: "/music/later.mp3", label: "Love Me Later" },
+  { src: "/music/strangers.mp3", label: "Strangers" },
+];
+
+// 🟩🟨⬛ share emojis
+const TILE_EMOJI = {
+  correct: "🟩",
+  present: "🟨",
+  absent: "⬛",
+};
+
+// Build the shareable text like NYT Wordle
+function buildShareText(history, status, rowsUsed) {
+  const today = new Date();
+  const dateStr = today.toISOString().slice(0, 10); // e.g. 2025-12-01
+
+  const attempts = status === "won" ? rowsUsed : "X";
+  const header = `Divya's Wordle ${dateStr} ${attempts}/6`;
+
+  const gridLines = history
+    .map((row) =>
+      row.result.map((state) => TILE_EMOJI[state] || "⬛").join("")
+    )
+    .join("\n");
+
+  const link = window.location.href;
+
+  return `${header}\n\n${gridLines}\n\n${link}`;
+}
+
 function evaluateGuess(guess, solution) {
   const len = solution.length;
   const result = Array(len).fill("absent");
   const solutionChars = solution.split("");
 
-  // First pass: greens
+  // First pass: correct (green)
   for (let i = 0; i < len; i++) {
     if (guess[i] === solution[i]) {
       result[i] = "correct";
@@ -34,7 +65,7 @@ function evaluateGuess(guess, solution) {
     }
   }
 
-  // Second pass: yellows
+  // Second pass: present (yellow)
   for (let i = 0; i < len; i++) {
     if (result[i] === "correct") continue;
     const idx = solutionChars.indexOf(guess[i]);
@@ -54,15 +85,18 @@ function App() {
   const solution = solutionEntry.word.toUpperCase();
   const WORD_LENGTH = solution.length;
 
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState([]); // [{ word, result }]
   const [currentGuess, setCurrentGuess] = useState("");
-  const [status, setStatus] = useState("playing");
+  const [status, setStatus] = useState("playing"); // "playing" | "won" | "lost"
   const [message, setMessage] = useState("");
   const [keyboardState, setKeyboardState] = useState({});
   const [hintUsed, setHintUsed] = useState(false);
 
-  // 🎵 Background Music
+  // 🎵 Music state
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(() =>
+    SONGS.length > 0 ? Math.floor(Math.random() * SONGS.length) : 0
+  );
   const audioRef = useRef(null);
 
   const toggleMusic = () => {
@@ -76,12 +110,47 @@ function App() {
       audio
         .play()
         .then(() => setIsMusicPlaying(true))
-        .catch((err) => console.error("Autoplay blocked:", err));
+        .catch((err) => {
+          console.error("Autoplay blocked:", err);
+        });
     }
   };
 
+  // 🎵 Next random track button
+  const playNextRandomTrack = () => {
+    if (SONGS.length === 0) return;
+
+    setCurrentTrackIndex((prev) => {
+      if (SONGS.length === 1) return prev; // nothing else to pick
+      let next = prev;
+      while (next === prev) {
+        next = Math.floor(Math.random() * SONGS.length);
+      }
+      return next;
+    });
+  };
+
+  // When track changes & music is "playing", auto play the new song
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.currentTime = 0;
+    if (isMusicPlaying) {
+      audio
+        .play()
+        .then(() => {
+          // ok
+        })
+        .catch((err) => {
+          console.error("Error playing new track:", err);
+        });
+    }
+  }, [currentTrackIndex, isMusicPlaying]);
+
   const resetGame = () => {
-    setSolutionEntry(getDailyWordEntry());
+    const entry = getDailyWordEntry();
+    setSolutionEntry(entry);
     setHistory([]);
     setCurrentGuess("");
     setStatus("playing");
@@ -90,28 +159,7 @@ function App() {
     setHintUsed(false);
   };
 
-  const updateKeyboardState = (guess, result) => {
-    setKeyboardState((prev) => {
-      const upd = { ...prev };
-      for (let i = 0; i < guess.length; i++) {
-        const letter = guess[i];
-        const nextState = result[i];
-        const prevState = upd[letter];
-
-        if (!prevState) {
-          upd[letter] = nextState;
-        } else if (
-          LETTER_STATE_PRIORITY[nextState] >
-          LETTER_STATE_PRIORITY[prevState]
-        ) {
-          upd[letter] = nextState;
-        }
-      }
-      return upd;
-    });
-  };
-
-  const submitGuess = useCallback(() => { 
+  const submitGuess = useCallback(() => {
     if (status !== "playing") return;
 
     if (currentGuess.length !== WORD_LENGTH) {
@@ -120,20 +168,39 @@ function App() {
     }
 
     const guess = currentGuess.toUpperCase();
-
-    // No dictionary restriction — any guess allowed
     const result = evaluateGuess(guess, solution);
     const newHistory = [...history, { word: guess, result }];
+
     setHistory(newHistory);
-    updateKeyboardState(guess, result);
+
+    // Update keyboard state
+    setKeyboardState((prev) => {
+      const updated = { ...prev };
+      for (let i = 0; i < guess.length; i++) {
+        const letter = guess[i];
+        const state = result[i];
+        const prevState = updated[letter];
+
+        if (!prevState) {
+          updated[letter] = state;
+        } else if (
+          LETTER_STATE_PRIORITY[state] >
+          LETTER_STATE_PRIORITY[prevState]
+        ) {
+          updated[letter] = state;
+        }
+      }
+      return updated;
+    });
+
     setCurrentGuess("");
     setMessage("");
 
     if (guess === solution) {
       setStatus("won");
-      setMessage("You got it!");
+      setMessage("you got it, but prolly in more tries than everyone else");
     } else if (newHistory.length === ROWS) {
-      setStatus("lost");
+      setStatus("girl, you dont even know yourself");
       setMessage(`The word was ${solution}`);
     }
   }, [status, currentGuess, WORD_LENGTH, history, solution]);
@@ -141,31 +208,34 @@ function App() {
   const handleKey = useCallback(
     (key) => {
       if (status !== "playing") return;
-  
+
       if (key === "ENTER") {
         submitGuess();
         return;
       }
-  
+
       if (key === "BACKSPACE") {
         setCurrentGuess((prev) => prev.slice(0, -1));
         return;
       }
-  
+
       if (/^[A-Z]$/.test(key) && currentGuess.length < WORD_LENGTH) {
         setCurrentGuess((prev) => prev + key);
       }
     },
-    [currentGuess, status, WORD_LENGTH, submitGuess]
+    [status, currentGuess, WORD_LENGTH, submitGuess]
   );
 
   useEffect(() => {
     const onKeyDown = (e) => {
       const key = e.key.toUpperCase();
-      if (key === "ENTER") return handleKey("ENTER");
-      if (key === "BACKSPACE" || key === "DELETE")
-        return handleKey("BACKSPACE");
-      if (/^[A-Z]$/.test(key)) return handleKey(key);
+      if (key === "ENTER") {
+        handleKey("ENTER");
+      } else if (key === "BACKSPACE" || key === "DELETE") {
+        handleKey("BACKSPACE");
+      } else if (/^[A-Z]$/.test(key) && key.length === 1) {
+        handleKey(key);
+      }
     };
 
     window.addEventListener("keydown", onKeyDown);
@@ -174,10 +244,10 @@ function App() {
 
   const renderBoard = () => (
     <div className="board">
-      {Array.from({ length: ROWS }).map((_, rowIdx) => {
-        const rowData = history[rowIdx];
-        const isCurrent =
-          rowIdx === history.length && status === "playing";
+      {Array.from({ length: ROWS }).map((_, rowIndex) => {
+        const rowData = history[rowIndex];
+        const isCurrentRow =
+          rowIndex === history.length && status === "playing";
 
         let tiles;
 
@@ -187,11 +257,10 @@ function App() {
               {letter}
             </div>
           ));
-        } else if (isCurrent) {
+        } else if (isCurrentRow) {
           const letters = currentGuess
             .padEnd(WORD_LENGTH, " ")
             .split("");
-
           tiles = letters.map((letter, i) => (
             <div
               key={i}
@@ -204,12 +273,12 @@ function App() {
           ));
         } else {
           tiles = Array.from({ length: WORD_LENGTH }).map((_, i) => (
-            <div key={i} className="tile empty"></div>
+            <div key={i} className="tile empty" />
           ));
         }
 
         return (
-          <div key={rowIdx} className="board-row">
+          <div key={rowIndex} className="board-row">
             {tiles}
           </div>
         );
@@ -219,29 +288,33 @@ function App() {
 
   const renderKeyboard = () => (
     <div className="keyboard">
-      {KEYBOARD_ROWS.map((row, idx) => (
-        <div key={idx} className="keyboard-row">
-          {idx === 2 && (
+      {KEYBOARD_ROWS.map((row, rowIndex) => (
+        <div key={rowIndex} className="keyboard-row">
+          {rowIndex === 2 && (
             <button
+              type="button"
               className="key large-key"
               onClick={() => handleKey("ENTER")}
             >
               ENTER
             </button>
           )}
-
-          {row.split("").map((letter) => (
+          {row.split("").map((letter) => {
+            const state = keyboardState[letter] || "";
+            return (
+              <button
+                key={letter}
+                type="button"
+                className={`key ${state}`}
+                onClick={() => handleKey(letter)}
+              >
+                {letter}
+              </button>
+            );
+          })}
+          {rowIndex === 2 && (
             <button
-              key={letter}
-              className={`key ${keyboardState[letter] || ""}`}
-              onClick={() => handleKey(letter)}
-            >
-              {letter}
-            </button>
-          ))}
-
-          {idx === 2 && (
-            <button
+              type="button"
               className="key large-key"
               onClick={() => handleKey("BACKSPACE")}
             >
@@ -253,40 +326,77 @@ function App() {
     </div>
   );
 
+  // Share results like NYT Wordle
+  const handleShare = useCallback(() => {
+    if (status === "playing") return;
+
+    const text = buildShareText(history, status, history.length);
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          setMessage("Results copied to clipboard!");
+        })
+        .catch(() => {
+          setMessage("Could not copy automatically. Check console.");
+          console.log(text);
+        });
+    } else {
+      setMessage("Copy not supported. Check console for results.");
+      console.log(text);
+    }
+  }, [history, status]);
+
   return (
     <div className="app">
       <header className="header">
-  <h1>Divya's Wordle</h1>
-  
-  <div className="header-icons">
-    <button
-      className="icon-btn"
-      onClick={() => setHintUsed(true)}
-      disabled={hintUsed || status !== "playing"}
-      title="Hint"
-    >
-      💡
-    </button>
+        <h1>Divya's Wordle</h1>
 
-    <button
-      className="icon-btn"
-      onClick={resetGame}
-      disabled={status !== "playing"}
-      title="Reset"
-    >
-      ↻
-    </button>
+        <div className="header-icons">
+          {/* Hint */}
+          <button
+            className="icon-btn"
+            onClick={() => setHintUsed(true)}
+            disabled={hintUsed || status !== "playing"}
+            title="Hint"
+          >
+            💡
+          </button>
 
-    <button
-      className="icon-btn"
-      onClick={toggleMusic}
-      title={isMusicPlaying ? "Pause Music" : "Play Music"}
-    >
-      {isMusicPlaying ? "⏸️" : "🎵"}
-    </button>
-  </div>
-</header>
+          {/* Reset */}
+          <button
+            className="icon-btn"
+            onClick={resetGame}
+            disabled={status !== "playing"}
+            title="Reset"
+          >
+            ↻
+          </button>
 
+          {/* Play / Pause */}
+          <button
+            className="icon-btn"
+            onClick={toggleMusic}
+            title={isMusicPlaying ? "Pause Music" : "Play Music"}
+          >
+            {isMusicPlaying ? "⏸️" : "🎵"}
+          </button>
+
+          {/* Next track */}
+          <button
+            className="icon-btn"
+            onClick={playNextRandomTrack}
+            title="Next Track"
+          >
+            ⏭️
+          </button>
+        </div>
+      </header>
+
+      <p className="now-playing">
+        Now playing: {SONGS[currentTrackIndex]?.label}
+      </p>
 
       {renderBoard()}
 
@@ -295,12 +405,23 @@ function App() {
         {hintUsed && (
           <p className="hint">Hint: {solutionEntry.hint}</p>
         )}
+      
+
+        {status !== "playing" && (
+          <button className="share-btn" onClick={handleShare}>
+            Share Results
+          </button>
+        )}
       </div>
 
       {renderKeyboard()}
 
-      {/* Background Audio */}
-      <audio ref={audioRef} src="/background.mp3" loop />
+      {/* 🎵 Background Audio */}
+      <audio
+        ref={audioRef}
+        src={SONGS[currentTrackIndex]?.src}
+        loop
+      />
     </div>
   );
 }
