@@ -54,14 +54,17 @@ body {
   grid-template-rows: repeat(6, 1fr);
   gap: 6px;
   margin-top: 12px;
+  width: 100%;              /* make sure it uses full width */
 }
 
 .board-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  /* auto-fit = one column per tile; minmax(0, 1fr) lets them shrink */
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 6px;
 }
 
+/* Tiles stay square and can shrink as needed */
 .tile {
   width: 100%;
   padding-top: 100%; /* square tiles */
@@ -72,13 +75,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  /* make font-size responsive so it doesn't overflow tiny tiles */
+  font-size: clamp(0.8rem, 2.5vw, 1.25rem);
 }
 
 .tile span,
 .tile::before {
   position: absolute;
 }
+
 
 .tile.empty {
   background: #121213;
