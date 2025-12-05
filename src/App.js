@@ -18,12 +18,12 @@ const LETTER_STATE_PRIORITY = {
 // 🎵 Playlist of songs
 // Make sure these files exist in /public
 const SONGS = [
-  { src: "/music/background.mp3", label: "Earned It" },
-  { src: "/music/show.mp3", label: "Enjoy the show" },
-  { src: "/music/loft.mp3", label: "Loft" },
-  { src: "/music/drake.mp3", label: "Wait For You" },
-  { src: "/music/later.mp3", label: "Love Me Later" },
-  { src: "/music/strangers.mp3", label: "Strangers" },
+  { src: "/music/bday.mp3", label: "Earned It" },
+  // { src: "/music/show.mp3", label: "Enjoy the show" },
+  // { src: "/music/loft.mp3", label: "Loft" },
+  // { src: "/music/drake.mp3", label: "Wait For You" },
+  // { src: "/music/later.mp3", label: "Love Me Later" },
+  // { src: "/music/strangers.mp3", label: "Strangers" },
 ];
 
 // 🟩🟨⬛ share emojis
@@ -117,18 +117,18 @@ function App() {
   };
 
   // 🎵 Next random track button
-  const playNextRandomTrack = () => {
-    if (SONGS.length === 0) return;
+  // const playNextRandomTrack = () => {
+  //   if (SONGS.length === 0) return;
 
-    setCurrentTrackIndex((prev) => {
-      if (SONGS.length === 1) return prev; // nothing else to pick
-      let next = prev;
-      while (next === prev) {
-        next = Math.floor(Math.random() * SONGS.length);
-      }
-      return next;
-    });
-  };
+  //   setCurrentTrackIndex((prev) => {
+  //     if (SONGS.length === 1) return prev; // nothing else to pick
+  //     let next = prev;
+  //     while (next === prev) {
+  //       next = Math.floor(Math.random() * SONGS.length);
+  //     }
+  //     return next;
+  //   });
+  // };
 
   // When track changes & music is "playing", auto play the new song
   useEffect(() => {
@@ -384,18 +384,18 @@ function App() {
           </button>
 
           {/* Next track */}
-          <button
+          {/* <button
             className="icon-btn"
             onClick={playNextRandomTrack}
             title="Next Track"
           >
             ⏭️
-          </button>
+          </button> */}
         </div>
       </header>
 
       <p className="now-playing">
-        Now playing: {SONGS[currentTrackIndex]?.label}
+        {/* Now playing: {SONGS[currentTrackIndex]?.label} */}
       </p>
 
       {renderBoard()}
