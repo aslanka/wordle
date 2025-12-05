@@ -94,7 +94,7 @@ function App() {
 
   // 🎵 Music state
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(() =>
+  const [currentTrackIndex] = useState(() =>
     SONGS.length > 0 ? Math.floor(Math.random() * SONGS.length) : 0
   );
   const audioRef = useRef(null);
