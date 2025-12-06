@@ -5,10 +5,10 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { getDailyWordEntry } from "./words";
+import { getDailyWordEntry  } from "./words";
 
 const ROWS = 6;
-const KEYBOARD_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
+const KEYBOARD_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM."];
 const LETTER_STATE_PRIORITY = {
   absent: 1,
   present: 2,
@@ -18,12 +18,12 @@ const LETTER_STATE_PRIORITY = {
 // 🎵 Playlist of songs
 // Make sure these files exist in /public
 const SONGS = [
-  { src: "/music/bday.mp3", label: "Earned It" },
-  // { src: "/music/show.mp3", label: "Enjoy the show" },
-  // { src: "/music/loft.mp3", label: "Loft" },
-  // { src: "/music/drake.mp3", label: "Wait For You" },
-  // { src: "/music/later.mp3", label: "Love Me Later" },
-  // { src: "/music/strangers.mp3", label: "Strangers" },
+  { src: "/music/background.mp3", label: "Earned It" },
+  { src: "/music/show.mp3", label: "Enjoy the show" },
+  { src: "/music/loft.mp3", label: "Loft" },
+  { src: "/music/drake.mp3", label: "Wait For You" },
+  { src: "/music/later.mp3", label: "Love Me Later" },
+  { src: "/music/strangers.mp3", label: "Strangers" },
 ];
 
 // 🟩🟨⬛ share emojis
@@ -94,7 +94,7 @@ function App() {
 
   // 🎵 Music state
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-  const [currentTrackIndex] = useState(() =>
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(() =>
     SONGS.length > 0 ? Math.floor(Math.random() * SONGS.length) : 0
   );
   const audioRef = useRef(null);
@@ -117,18 +117,18 @@ function App() {
   };
 
   // 🎵 Next random track button
-  // const playNextRandomTrack = () => {
-  //   if (SONGS.length === 0) return;
+  const playNextRandomTrack = () => {
+    if (SONGS.length === 0) return;
 
-  //   setCurrentTrackIndex((prev) => {
-  //     if (SONGS.length === 1) return prev; // nothing else to pick
-  //     let next = prev;
-  //     while (next === prev) {
-  //       next = Math.floor(Math.random() * SONGS.length);
-  //     }
-  //     return next;
-  //   });
-  // };
+    setCurrentTrackIndex((prev) => {
+      if (SONGS.length === 1) return prev; // nothing else to pick
+      let next = prev;
+      while (next === prev) {
+        next = Math.floor(Math.random() * SONGS.length);
+      }
+      return next;
+    });
+  };
 
   // When track changes & music is "playing", auto play the new song
   useEffect(() => {
@@ -219,24 +219,38 @@ function App() {
         return;
       }
 
-      if (/^[A-Z]$/.test(key) && currentGuess.length < WORD_LENGTH) {
+      if (
+        (/^[A-Z]$/.test(key) || key === ".") &&
+        currentGuess.length < WORD_LENGTH
+      ) {
         setCurrentGuess((prev) => prev + key);
       }
+      
     },
     [status, currentGuess, WORD_LENGTH, submitGuess]
   );
 
   useEffect(() => {
     const onKeyDown = (e) => {
-      const key = e.key.toUpperCase();
-      if (key === "ENTER") {
+      let key = e.key;
+    
+      // Normalize letters to uppercase, keep "." as "."
+      if (key.length === 1 && /^[a-z]$/i.test(key)) {
+        key = key.toUpperCase();
+      }
+    
+      if (key === "Enter") {
         handleKey("ENTER");
-      } else if (key === "BACKSPACE" || key === "DELETE") {
+      } else if (key === "Backspace" || key === "Delete") {
         handleKey("BACKSPACE");
-      } else if (/^[A-Z]$/.test(key) && key.length === 1) {
+      } else if (
+        (key.length === 1 && /^[A-Z]$/.test(key)) ||
+        key === "."
+      ) {
         handleKey(key);
       }
     };
+    
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -384,18 +398,18 @@ function App() {
           </button>
 
           {/* Next track */}
-          {/* <button
+          <button
             className="icon-btn"
             onClick={playNextRandomTrack}
             title="Next Track"
           >
             ⏭️
-          </button> */}
+          </button>
         </div>
       </header>
 
       <p className="now-playing">
-        {/* Now playing: {SONGS[currentTrackIndex]?.label} */}
+        Now playing: {SONGS[currentTrackIndex]?.label}
       </p>
 
       {renderBoard()}
