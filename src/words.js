@@ -32,8 +32,8 @@ export const CUSTOM_WORDS = [
       hint: "if someone got you one, youd be really happy.",
     },
     {
-      word: "obx",
-      hint: "tv show with hot people",
+      word: "anora",
+      hint: "no hint, any hint gives this away",
     },
     {
       word: "jj",
