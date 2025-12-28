@@ -28,8 +28,8 @@ export const CUSTOM_WORDS = [
       hint: "one of your fav doggos",
     },
     {
-      word: "DILDO",
-      hint: "if someone got you one, youd be really happy.",
+      word: "vibrator",
+      hint: "you should get one",
     },
     {
       word: "anora",
