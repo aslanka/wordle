@@ -56,8 +56,8 @@ export const CUSTOM_WORDS = [
         hint: "someone really close to you calls you this",
       },
       {
-        word: "fireball",
-        hint: "for some reason the only thing you drink.",
+        word: "daisy",
+        hint: "flower with double meaning.",
       },
       {
         word: "die.",
