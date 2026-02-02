@@ -18,12 +18,15 @@ const LETTER_STATE_PRIORITY = {
 // 🎵 Playlist of songs
 // Make sure these files exist in /public
 const SONGS = [
+  { src: "/music/dancing.mp3", label: "Dancing in the smoke" },
   { src: "/music/background.mp3", label: "Earned It" },
   { src: "/music/show.mp3", label: "Enjoy the show" },
   { src: "/music/loft.mp3", label: "Loft" },
   { src: "/music/drake.mp3", label: "Wait For You" },
   { src: "/music/later.mp3", label: "Love Me Later" },
   { src: "/music/strangers.mp3", label: "Strangers" },
+
+
 ];
 
 // 🟩🟨⬛ share emojis

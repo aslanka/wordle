@@ -4,65 +4,29 @@
 // Make sure word is 5 letters & uppercase.
 export const CUSTOM_WORDS = [
     {
-      word: "cowgirl",
-      hint: "sexy position you like. YEEHAW",
+      word: "squeak",
+      hint: "noise you make when you sleep",
     },
     {
-      word: "Abel",
-      hint: "your husband fr.",
+      word: "marinate",
+      hint: "my advice to what you should do to your cava so it taste better",
     },
     {
-      word: "coding",
-      hint: "something that puts you to sleep right away. YOU SPECIFICALLY, i think its really cool.",
+      word: "ohioo",
+      hint: "the dumbest way to spell ohio",
     },
     {
-      word: "lulu",
-      hint: "one of your fav brands.",
+      word: "idiot",
+      hint: "best way to describe you",
     },
     {
-      word: "vancleef",
-      hint: "brand that you really like.",
+      word: "dick",
+      hint: "something we both want stuck into us",
     },
     {
-      word: "happy",
-      hint: "one of your fav doggos",
+      word: "whitehouse",
+      hint: "best place to have sex",
     },
-    {
-      word: "vibrator",
-      hint: "you should get one",
-    },
-    {
-      word: "anora",
-      hint: "no hint, any hint gives this away",
-    },
-    {
-      word: "jj",
-      hint: "your husband fr.",
-    },
-    {
-      word: "garba",
-      hint: "one of your fav activites.",
-    },
-    {
-        word: "GREAT",
-        hint: "the best wordle guess eve.",
-      },
-      {
-        word: "Hermes",
-        hint: "you like this. you can get it at the mall",
-      },
-      {
-        word: "Divudi",
-        hint: "someone really close to you calls you this",
-      },
-      {
-        word: "daisy",
-        hint: "flower with double meaning.",
-      },
-      {
-        word: "die.",
-        hint: "one of your fav insults",
-      },
   ];
   
   // Valid guesses are just the words themselves.
