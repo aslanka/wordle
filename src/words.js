@@ -8,8 +8,8 @@ export const CUSTOM_WORDS = [
       hint: "noise you make when you sleep",
     },
     {
-      word: "marinate",
-      hint: "my advice to what you should do to your cava so it taste better",
+      word: "divya",
+      hint: "name of the person who has been pissing me off for two years",
     },
     {
       word: "ohioo",
