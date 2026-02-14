@@ -183,7 +183,8 @@ function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
 
         /* image floats AFTER bloom so transforms don't fight */
         .bouquet-img{
-        image-orientation: from-image;
+        image-orientation: none;
+        transform: rotate(0deg);
           width: 100%;
           height: auto;
           user-select: none;
