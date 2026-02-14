@@ -5,7 +5,7 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { getDailyWordEntry  } from "./words";
+import { getDailyWordEntry } from "./words";
 
 const ROWS = 6;
 const KEYBOARD_ROWS = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM."];
@@ -25,8 +25,6 @@ const SONGS = [
   { src: "/music/drake.mp3", label: "Wait For You" },
   { src: "/music/later.mp3", label: "Love Me Later" },
   { src: "/music/strangers.mp3", label: "Strangers" },
-
-
 ];
 
 // 🟩🟨⬛ share emojis
@@ -81,6 +79,225 @@ function evaluateGuess(guess, solution) {
   return result;
 }
 
+/* 🌸 FULL-SCREEN FLOWER WIN OVERLAY (dark tint + animated petals) */
+function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
+  const petals = Array.from({ length: 52 }).map((_, i) => ({
+    id: i,
+    left: `${(i * 19) % 100}%`,
+    delay: `${(i % 10) * 0.09}s`,
+    duration: `${5.2 + (i % 7) * 0.55}s`,
+    size: 18 + (i % 8) * 4,
+    sway: 16 + (i % 6) * 10,
+    emoji: ["🌸", "🌷", "🌺", "🌼", "🪷", "💮"][i % 6],
+    opacity: 0.55 + (i % 6) * 0.07,
+    blur: i % 9 === 0 ? 1.2 : 0,
+  }));
+
+  const sparkles = Array.from({ length: 18 }).map((_, i) => ({
+    id: i,
+    top: `${(i * 37) % 100}%`,
+    left: `${(i * 53) % 100}%`,
+    delay: `${(i % 6) * 0.22}s`,
+    size: 6 + (i % 6) * 2,
+  }));
+
+  return (
+    <div className="win-overlay" role="dialog" aria-live="polite">
+      {/* dark tint */}
+      <div className="win-backdrop" onClick={onClose} />
+
+      {/* dreamy vfx */}
+      <div className="win-vfx" aria-hidden="true">
+        <div className="glow g1" />
+        <div className="glow g2" />
+        <div className="glow g3" />
+
+        {sparkles.map((s) => (
+          <span
+            key={s.id}
+            className="sparkle"
+            style={{
+              top: s.top,
+              left: s.left,
+              width: s.size,
+              height: s.size,
+              animationDelay: s.delay,
+            }}
+          />
+        ))}
+
+        {petals.map((p) => (
+          <span
+            key={p.id}
+            className="petal"
+            style={{
+              left: p.left,
+              animationDelay: p.delay,
+              animationDuration: p.duration,
+              fontSize: `${p.size}px`,
+              opacity: p.opacity,
+              filter: `drop-shadow(0 10px 14px rgba(0,0,0,0.25)) blur(${p.blur}px)`,
+              "--sway": `${p.sway}px`,
+            }}
+          >
+            {p.emoji}
+          </span>
+        ))}
+      </div>
+
+      {/* card */}
+      <div className="win-card">
+        <div className="win-badge">✨ DIVYA CODED ✨</div>
+        <div className="win-title">{title}</div>
+        <div className="win-subtitle">{subtitle}</div>
+
+        <div className="win-actions">
+          <button className="win-btn primary" onClick={onShare}>
+            Share Results
+          </button>
+          <button className="win-btn" onClick={onClose}>
+            Close
+          </button>
+        </div>
+      </div>
+
+      <style>{`
+        .win-overlay{
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 18px;
+        }
+        .win-backdrop{
+          position: absolute;
+          inset: 0;
+          background: rgba(0,0,0,0.75);
+          backdrop-filter: blur(6px);
+        }
+        .win-vfx{
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          pointer-events: none;
+        }
+        .glow{
+          position: absolute;
+          width: 48vmax;
+          height: 48vmax;
+          border-radius: 999px;
+          filter: blur(55px);
+          opacity: 0.35;
+          animation: drift 10s ease-in-out infinite;
+        }
+        .g1{ top:-22vmax; left:-18vmax; background: rgba(255, 140, 200, 0.75); }
+        .g2{ bottom:-24vmax; right:-16vmax; background: rgba(140, 200, 255, 0.75); animation-duration: 12s; }
+        .g3{ top:18vmax; right:-20vmax; background: rgba(200, 255, 170, 0.65); animation-duration: 13.5s; }
+        @keyframes drift{
+          0%   { transform: translate(0,0) scale(1); }
+          50%  { transform: translate(40px,-30px) scale(1.05); }
+          100% { transform: translate(0,0) scale(1); }
+        }
+
+        .sparkle{
+          position: absolute;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.85);
+          box-shadow: 0 0 18px rgba(255,255,255,0.35);
+          opacity: 0;
+          animation: twinkle 1.9s ease-in-out infinite;
+        }
+        @keyframes twinkle{
+          0% { transform: scale(0.7); opacity: 0; }
+          40% { opacity: 0.95; }
+          70% { opacity: 0.25; }
+          100% { transform: scale(1.18); opacity: 0; }
+        }
+
+        .petal{
+          position: absolute;
+          top: -12%;
+          transform: translateY(-20px);
+          animation-name: fallSway;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          will-change: transform, opacity;
+        }
+        @keyframes fallSway{
+          0%   { transform: translate(0, -30px) rotate(0deg); opacity: 0; }
+          12%  { opacity: 1; }
+          50%  { transform: translate(var(--sway), 55vh) rotate(180deg); opacity: 0.95; }
+          100% { transform: translate(calc(var(--sway) * -1), 112vh) rotate(360deg); opacity: 0; }
+        }
+
+        .win-card{
+          position: relative;
+          width: min(560px, 94vw);
+          border-radius: 22px;
+          padding: 20px 18px 16px;
+          text-align: center;
+          background: rgba(18,18,18,0.88);
+          border: 1px solid rgba(255,255,255,0.14);
+          box-shadow: 0 24px 90px rgba(0,0,0,0.45);
+          animation: pop 260ms ease-out;
+        }
+        @keyframes pop{
+          0% { transform: translateY(10px) scale(0.95); opacity: 0; }
+          100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .win-badge{
+          display: inline-block;
+          font-size: 12px;
+          letter-spacing: 0.18em;
+          font-weight: 800;
+          padding: 8px 12px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.10);
+          margin-bottom: 10px;
+        }
+        .win-title{
+          font-size: 28px;
+          font-weight: 900;
+          margin-bottom: 8px;
+        }
+        .win-subtitle{
+          font-size: 14px;
+          opacity: 0.95;
+          line-height: 1.4;
+          margin-bottom: 14px;
+        }
+        .win-actions{
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        .win-btn{
+          border: none;
+          border-radius: 14px;
+          padding: 10px 14px;
+          font-weight: 800;
+          cursor: pointer;
+          background: rgba(255,255,255,0.10);
+          color: white;
+          border: 1px solid rgba(255,255,255,0.14);
+        }
+        .win-btn.primary{
+          background: rgba(255,255,255,0.92);
+          color: #111;
+          border: 1px solid rgba(255,255,255,0.35);
+        }
+        .win-btn:active{
+          transform: translateY(1px);
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function App() {
   const [solutionEntry, setSolutionEntry] = useState(() =>
     getDailyWordEntry()
@@ -94,6 +311,9 @@ function App() {
   const [message, setMessage] = useState("");
   const [keyboardState, setKeyboardState] = useState({});
   const [hintUsed, setHintUsed] = useState(false);
+
+  // 🌸 win overlay state
+  const [showWinOverlay, setShowWinOverlay] = useState(false);
 
   // 🎵 Music state
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
@@ -160,6 +380,7 @@ function App() {
     setMessage("");
     setKeyboardState({});
     setHintUsed(false);
+    setShowWinOverlay(false);
   };
 
   const submitGuess = useCallback(() => {
@@ -201,8 +422,12 @@ function App() {
 
     if (guess === solution) {
       setStatus("won");
-      setMessage("you got it, but prolly in more tries than everyone else");
+      const winMsg =
+        "you got it, but prolly in more tries than everyone else";
+      setMessage(winMsg);
+      setShowWinOverlay(true);
     } else if (newHistory.length === ROWS) {
+      // Keep your original roast status text (but make sure logic still works)
       setStatus("girl, you dont even know yourself");
       setMessage(`The word was ${solution}`);
     }
@@ -228,7 +453,6 @@ function App() {
       ) {
         setCurrentGuess((prev) => prev + key);
       }
-      
     },
     [status, currentGuess, WORD_LENGTH, submitGuess]
   );
@@ -236,24 +460,20 @@ function App() {
   useEffect(() => {
     const onKeyDown = (e) => {
       let key = e.key;
-    
+
       // Normalize letters to uppercase, keep "." as "."
       if (key.length === 1 && /^[a-z]$/i.test(key)) {
         key = key.toUpperCase();
       }
-    
+
       if (key === "Enter") {
         handleKey("ENTER");
       } else if (key === "Backspace" || key === "Delete") {
         handleKey("BACKSPACE");
-      } else if (
-        (key.length === 1 && /^[A-Z]$/.test(key)) ||
-        key === "."
-      ) {
+      } else if ((key.length === 1 && /^[A-Z]$/.test(key)) || key === ".") {
         handleKey(key);
       }
     };
-    
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -275,15 +495,11 @@ function App() {
             </div>
           ));
         } else if (isCurrentRow) {
-          const letters = currentGuess
-            .padEnd(WORD_LENGTH, " ")
-            .split("");
+          const letters = currentGuess.padEnd(WORD_LENGTH, " ").split("");
           tiles = letters.map((letter, i) => (
             <div
               key={i}
-              className={`tile ${
-                letter.trim() ? "current" : "empty"
-              }`}
+              className={`tile ${letter.trim() ? "current" : "empty"}`}
             >
               {letter}
             </div>
@@ -367,6 +583,16 @@ function App() {
 
   return (
     <div className="app">
+      {/* 🌸 WIN OVERLAY (dark tinted + animated flowers) */}
+      {showWinOverlay && status === "won" && (
+        <FlowerWinOverlay
+          title="you got it 🌸"
+          subtitle={message || "ok bestie!!!!"}
+          onClose={() => setShowWinOverlay(false)}
+          onShare={handleShare}
+        />
+      )}
+
       <header className="header">
         <h1>Divya's Wordle</h1>
 
@@ -419,10 +645,7 @@ function App() {
 
       <div className="message-area">
         {message && <p className="message">{message}</p>}
-        {hintUsed && (
-          <p className="hint">Hint: {solutionEntry.hint}</p>
-        )}
-      
+        {hintUsed && <p className="hint">Hint: {solutionEntry.hint}</p>}
 
         {status !== "playing" && (
           <button className="share-btn" onClick={handleShare}>
@@ -434,11 +657,7 @@ function App() {
       {renderKeyboard()}
 
       {/* 🎵 Background Audio */}
-      <audio
-        ref={audioRef}
-        src={SONGS[currentTrackIndex]?.src}
-        loop
-      />
+      <audio ref={audioRef} src={SONGS[currentTrackIndex]?.src} loop />
     </div>
   );
 }
