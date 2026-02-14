@@ -100,7 +100,7 @@ function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
         <div className="win-card">
           <div className="win-badge">✨ DIVYA WORDLE ✨</div>
           <div className="win-title">Made the word HARD ASFFFFF</div>
-          <div className="win-subtitle">you had to lock in for this beautiful bouget set</div>
+          <div className="win-subtitle">you had to lock in for this beautiful bouqet set</div>
 
           <div className="win-actions">
             <button className="win-btn primary" onClick={onShare}>
@@ -183,6 +183,7 @@ function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
 
         /* image floats AFTER bloom so transforms don't fight */
         .bouquet-img{
+        image-orientation: from-image;
           width: 100%;
           height: auto;
           user-select: none;
