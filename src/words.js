@@ -4,29 +4,10 @@
 // Make sure word is 5 letters & uppercase.
 export const CUSTOM_WORDS = [
     {
-      word: "squeak",
-      hint: "noise you make when you sleep",
+      word: "elevator",
+      hint: "What goes up, lets out load, and then goes back",
     },
-    {
-      word: "divya",
-      hint: "name of the person who has been pissing me off for two years",
-    },
-    {
-      word: "ohioo",
-      hint: "the dumbest way to spell ohio",
-    },
-    {
-      word: "idiot",
-      hint: "best way to describe you",
-    },
-    {
-      word: "dick",
-      hint: "something we both want stuck into us",
-    },
-    {
-      word: "whitehouse",
-      hint: "best place to have sex",
-    },
+    
   ];
   
   // Valid guesses are just the words themselves.

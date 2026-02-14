@@ -1,10 +1,5 @@
 // src/App.jsx
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-} from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { getDailyWordEntry } from "./words";
 
 const ROWS = 6;
@@ -37,19 +32,16 @@ const TILE_EMOJI = {
 // Build the shareable text like NYT Wordle
 function buildShareText(history, status, rowsUsed) {
   const today = new Date();
-  const dateStr = today.toISOString().slice(0, 10); // e.g. 2025-12-01
+  const dateStr = today.toISOString().slice(0, 10);
 
   const attempts = status === "won" ? rowsUsed : "X";
   const header = `Divya's Wordle ${dateStr} ${attempts}/6`;
 
   const gridLines = history
-    .map((row) =>
-      row.result.map((state) => TILE_EMOJI[state] || "⬛").join("")
-    )
+    .map((row) => row.result.map((state) => TILE_EMOJI[state] || "⬛").join(""))
     .join("\n");
 
   const link = window.location.href;
-
   return `${header}\n\n${gridLines}\n\n${link}`;
 }
 
@@ -79,85 +71,45 @@ function evaluateGuess(guess, solution) {
   return result;
 }
 
-/* 🌸 FULL-SCREEN FLOWER WIN OVERLAY (dark tint + animated petals) */
+/* 💐 FULL-SCREEN BOUQUET WIN OVERLAY (image-based, big + above text) */
 function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
-  const petals = Array.from({ length: 52 }).map((_, i) => ({
-    id: i,
-    left: `${(i * 19) % 100}%`,
-    delay: `${(i % 10) * 0.09}s`,
-    duration: `${5.2 + (i % 7) * 0.55}s`,
-    size: 18 + (i % 8) * 4,
-    sway: 16 + (i % 6) * 10,
-    emoji: ["🌸", "🌷", "🌺", "🌼", "🪷", "💮"][i % 6],
-    opacity: 0.55 + (i % 6) * 0.07,
-    blur: i % 9 === 0 ? 1.2 : 0,
-  }));
-
-  const sparkles = Array.from({ length: 18 }).map((_, i) => ({
-    id: i,
-    top: `${(i * 37) % 100}%`,
-    left: `${(i * 53) % 100}%`,
-    delay: `${(i % 6) * 0.22}s`,
-    size: 6 + (i % 6) * 2,
-  }));
-
   return (
     <div className="win-overlay" role="dialog" aria-live="polite">
       {/* dark tint */}
       <div className="win-backdrop" onClick={onClose} />
 
-      {/* dreamy vfx */}
+      {/* dreamy background glow */}
       <div className="win-vfx" aria-hidden="true">
         <div className="glow g1" />
         <div className="glow g2" />
         <div className="glow g3" />
-
-        {sparkles.map((s) => (
-          <span
-            key={s.id}
-            className="sparkle"
-            style={{
-              top: s.top,
-              left: s.left,
-              width: s.size,
-              height: s.size,
-              animationDelay: s.delay,
-            }}
-          />
-        ))}
-
-        {petals.map((p) => (
-          <span
-            key={p.id}
-            className="petal"
-            style={{
-              left: p.left,
-              animationDelay: p.delay,
-              animationDuration: p.duration,
-              fontSize: `${p.size}px`,
-              opacity: p.opacity,
-              filter: `drop-shadow(0 10px 14px rgba(0,0,0,0.25)) blur(${p.blur}px)`,
-              "--sway": `${p.sway}px`,
-            }}
-          >
-            {p.emoji}
-          </span>
-        ))}
       </div>
 
-      {/* card */}
-      <div className="win-card">
-        <div className="win-badge">✨ DIVYA CODED ✨</div>
-        <div className="win-title">{title}</div>
-        <div className="win-subtitle">{subtitle}</div>
+      {/* content stack: bouquet ABOVE card */}
+      <div className="win-stack">
+        {/* wrapper prevents transform conflicts and gives a long bloom */}
+        <div className="bouquet-wrap" aria-hidden="true">
+          <img
+            className="bouquet-img"
+            src="/bouquet.png"
+            alt="Bouquet"
+            draggable="false"
+          />
+        </div>
 
-        <div className="win-actions">
-          <button className="win-btn primary" onClick={onShare}>
-            Share Results
-          </button>
-          <button className="win-btn" onClick={onClose}>
-            Close
-          </button>
+        <div className="win-card">
+          <div className="win-badge">✨ DIVYA WORDLE ✨</div>
+          <div className="win-title">Made the word HARD ASFFFFF</div>
+          <div className="win-subtitle">you had to lock in for this beautiful bouget set</div>
+
+          <div className="win-actions">
+            <button className="win-btn primary" onClick={onShare}>
+              Share Results
+            </button>
+            <button className="win-btn" onClick={onClose}>
+              Close
+            </button>
+          </div>
         </div>
       </div>
 
@@ -171,18 +123,22 @@ function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
           justify-content: center;
           padding: 18px;
         }
+
         .win-backdrop{
           position: absolute;
           inset: 0;
-          background: rgba(0,0,0,0.75);
-          backdrop-filter: blur(6px);
+          background: rgba(0,0,0,0.78);
+          backdrop-filter: blur(8px);
         }
+
         .win-vfx{
           position: absolute;
           inset: 0;
           overflow: hidden;
           pointer-events: none;
         }
+
+        /* soft dreamy glow blobs */
         .glow{
           position: absolute;
           width: 48vmax;
@@ -201,52 +157,87 @@ function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
           100% { transform: translate(0,0) scale(1); }
         }
 
-        .sparkle{
-          position: absolute;
-          border-radius: 999px;
-          background: rgba(255,255,255,0.85);
-          box-shadow: 0 0 18px rgba(255,255,255,0.35);
-          opacity: 0;
-          animation: twinkle 1.9s ease-in-out infinite;
-        }
-        @keyframes twinkle{
-          0% { transform: scale(0.7); opacity: 0; }
-          40% { opacity: 0.95; }
-          70% { opacity: 0.25; }
-          100% { transform: scale(1.18); opacity: 0; }
+        .win-stack{
+          position: relative;
+          z-index: 2;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 14px;
+          width: min(560px, 94vw);
         }
 
-        .petal{
-          position: absolute;
-          top: -12%;
-          transform: translateY(-20px);
-          animation-name: fallSway;
-          animation-timing-function: linear;
-          animation-iteration-count: infinite;
-          will-change: transform, opacity;
+        /* BIG bouquet container - handles grow + fade (2+ seconds) */
+        .bouquet-wrap{
+          width: min(520px, 92vw);
+          display: grid;
+          place-items: center;
+          transform-origin: bottom center;
+          opacity: 0;
+          transform: translateY(18px) scale(0.55);
+          filter: drop-shadow(0 22px 45px rgba(0,0,0,0.45));
+
+          /* long bloom animation */
+          animation: bouquetBloom 2200ms cubic-bezier(.16, 1, .3, 1) forwards;
         }
-        @keyframes fallSway{
-          0%   { transform: translate(0, -30px) rotate(0deg); opacity: 0; }
-          12%  { opacity: 1; }
-          50%  { transform: translate(var(--sway), 55vh) rotate(180deg); opacity: 0.95; }
-          100% { transform: translate(calc(var(--sway) * -1), 112vh) rotate(360deg); opacity: 0; }
+
+        /* image floats AFTER bloom so transforms don't fight */
+        .bouquet-img{
+          width: 100%;
+          height: auto;
+          user-select: none;
+          pointer-events: none;
+          transform-origin: bottom center;
+
+          /* float starts after bloom finishes */
+          animation: bouquetFloat 5200ms ease-in-out 2300ms infinite;
+        }
+
+        /* Smooth, romantic grow + fade + settle */
+        @keyframes bouquetBloom{
+          0%{
+            opacity: 0;
+            transform: translateY(22px) scale(0.45);
+            filter: blur(6px) drop-shadow(0 10px 25px rgba(0,0,0,0.35));
+          }
+          35%{
+            opacity: 1;
+            transform: translateY(0px) scale(0.85);
+            filter: blur(0px) drop-shadow(0 18px 40px rgba(0,0,0,0.40));
+          }
+          70%{
+            transform: translateY(-6px) scale(1.06);
+          }
+          100%{
+            opacity: 1;
+            transform: translateY(0px) scale(1);
+            filter: blur(0px) drop-shadow(0 22px 45px rgba(0,0,0,0.45));
+          }
+        }
+
+        /* Gentle float without overriding bloom */
+        @keyframes bouquetFloat{
+          0%, 100% { transform: translateY(0px) rotate(-0.4deg); }
+          50%      { transform: translateY(-10px) rotate(0.4deg); }
         }
 
         .win-card{
-          position: relative;
-          width: min(560px, 94vw);
+          width: 100%;
           border-radius: 22px;
-          padding: 20px 18px 16px;
+          padding: 18px 18px 16px;
           text-align: center;
           background: rgba(18,18,18,0.88);
           border: 1px solid rgba(255,255,255,0.14);
           box-shadow: 0 24px 90px rgba(0,0,0,0.45);
+          backdrop-filter: blur(8px);
           animation: pop 260ms ease-out;
         }
+
         @keyframes pop{
-          0% { transform: translateY(10px) scale(0.95); opacity: 0; }
+          0% { transform: translateY(10px) scale(0.97); opacity: 0; }
           100% { transform: translateY(0) scale(1); opacity: 1; }
         }
+
         .win-badge{
           display: inline-block;
           font-size: 12px;
@@ -258,23 +249,27 @@ function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
           border: 1px solid rgba(255,255,255,0.10);
           margin-bottom: 10px;
         }
+
         .win-title{
           font-size: 28px;
           font-weight: 900;
           margin-bottom: 8px;
         }
+
         .win-subtitle{
           font-size: 14px;
           opacity: 0.95;
           line-height: 1.4;
           margin-bottom: 14px;
         }
+
         .win-actions{
           display: flex;
           gap: 10px;
           justify-content: center;
           flex-wrap: wrap;
         }
+
         .win-btn{
           border: none;
           border-radius: 14px;
@@ -285,13 +280,24 @@ function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
           color: white;
           border: 1px solid rgba(255,255,255,0.14);
         }
+
         .win-btn.primary{
           background: rgba(255,255,255,0.92);
           color: #111;
           border: 1px solid rgba(255,255,255,0.35);
         }
+
         .win-btn:active{
           transform: translateY(1px);
+        }
+
+        @media (max-height: 700px){
+          .bouquet-wrap{ width: min(440px, 92vw); }
+          .win-stack{ gap: 10px; }
+        }
+
+        @media (prefers-reduced-motion: reduce){
+          .bouquet-wrap, .bouquet-img, .glow { animation: none !important; }
         }
       `}</style>
     </div>
@@ -299,9 +305,7 @@ function FlowerWinOverlay({ title, subtitle, onClose, onShare }) {
 }
 
 function App() {
-  const [solutionEntry, setSolutionEntry] = useState(() =>
-    getDailyWordEntry()
-  );
+  const [solutionEntry, setSolutionEntry] = useState(() => getDailyWordEntry());
   const solution = solutionEntry.word.toUpperCase();
   const WORD_LENGTH = solution.length;
 
@@ -312,7 +316,7 @@ function App() {
   const [keyboardState, setKeyboardState] = useState({});
   const [hintUsed, setHintUsed] = useState(false);
 
-  // 🌸 win overlay state
+  // 💐 win overlay state
   const [showWinOverlay, setShowWinOverlay] = useState(false);
 
   // 🎵 Music state
@@ -344,7 +348,7 @@ function App() {
     if (SONGS.length === 0) return;
 
     setCurrentTrackIndex((prev) => {
-      if (SONGS.length === 1) return prev; // nothing else to pick
+      if (SONGS.length === 1) return prev;
       let next = prev;
       while (next === prev) {
         next = Math.floor(Math.random() * SONGS.length);
@@ -408,8 +412,7 @@ function App() {
         if (!prevState) {
           updated[letter] = state;
         } else if (
-          LETTER_STATE_PRIORITY[state] >
-          LETTER_STATE_PRIORITY[prevState]
+          LETTER_STATE_PRIORITY[state] > LETTER_STATE_PRIORITY[prevState]
         ) {
           updated[letter] = state;
         }
@@ -422,12 +425,11 @@ function App() {
 
     if (guess === solution) {
       setStatus("won");
-      const winMsg =
-        "you got it, but prolly in more tries than everyone else";
+      const winMsg = "you got it, but prolly in more tries than everyone else";
       setMessage(winMsg);
       setShowWinOverlay(true);
     } else if (newHistory.length === ROWS) {
-      // Keep your original roast status text (but make sure logic still works)
+      // Keep your original roast status text
       setStatus("girl, you dont even know yourself");
       setMessage(`The word was ${solution}`);
     }
@@ -483,8 +485,7 @@ function App() {
     <div className="board">
       {Array.from({ length: ROWS }).map((_, rowIndex) => {
         const rowData = history[rowIndex];
-        const isCurrentRow =
-          rowIndex === history.length && status === "playing";
+        const isCurrentRow = rowIndex === history.length && status === "playing";
 
         let tiles;
 
@@ -532,6 +533,7 @@ function App() {
               ENTER
             </button>
           )}
+
           {row.split("").map((letter) => {
             const state = keyboardState[letter] || "";
             return (
@@ -545,6 +547,7 @@ function App() {
               </button>
             );
           })}
+
           {rowIndex === 2 && (
             <button
               type="button"
@@ -583,10 +586,10 @@ function App() {
 
   return (
     <div className="app">
-      {/* 🌸 WIN OVERLAY (dark tinted + animated flowers) */}
+      {/* 💐 WIN OVERLAY */}
       {showWinOverlay && status === "won" && (
         <FlowerWinOverlay
-          title="you got it 🌸"
+          title="you got it 💐"
           subtitle={message || "ok bestie!!!!"}
           onClose={() => setShowWinOverlay(false)}
           onShare={handleShare}
@@ -637,9 +640,7 @@ function App() {
         </div>
       </header>
 
-      <p className="now-playing">
-        Now playing: {SONGS[currentTrackIndex]?.label}
-      </p>
+      <p className="now-playing">Now playing: {SONGS[currentTrackIndex]?.label}</p>
 
       {renderBoard()}
 
